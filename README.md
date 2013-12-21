@@ -50,6 +50,12 @@ We need access to the messages in our view. To do so, use this snippet after the
 app.locals.flash = req.flash.bind(req);
 ```
 
+From version `1.0.1`, we are now indexing messages by sessionId, so add this in your main:
+
+```javascript
+app.locals.__csrf = app.locals.__csrf || 'thisismycsrfstringtovalidate';
+```
+
 With the `flash` middleware in place, all requests will have a `req.flash()` function
 that can be used for flash messages.
 
@@ -67,7 +73,7 @@ app.get('/', function(req, res){
 
 Now, in your view, time to render them. Below example is in .ejs but good enough to understand :-)
 
-```javascriipt
+```javascript
 <% flash(function(msgs) {
     console.log(msgs);  // Your message here. Do anything with it.
 }) %>
