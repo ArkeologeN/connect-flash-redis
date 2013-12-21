@@ -65,7 +65,7 @@ app.get('/', function(req, res){
 });
 ```
 
-Now, in your view time to render them. Below example is in .ejs but good enough to understand :-)
+Now, in your view, time to render them. Below example is in .ejs but good enough to understand :-)
 
 ```javascriipt
 <% flash(function(msgs) {
