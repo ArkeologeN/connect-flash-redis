@@ -50,10 +50,37 @@ We need access to the messages in our view. To do so, use this snippet after the
 app.locals.flash = req.flash.bind(req);
 ```
 
-From version `1.0.1`, we are now indexing messages by sessionId, so add this in your main:
+From version `1.0.2`, we are now indexing messages by sessionId, so add this in your main:
 
 ```javascript
-app.locals.__csrf = app.locals.__csrf || 'thisismycsrfstringtovalidate';
+app.use(function(req, res, next) {
+    if (_.isUndefined(app.locals.__csrf)) {
+        require('crypto').randomBytes(10, function(ex, buf) {
+            app.locals.__csrf = buf.toString('hex');
+            var errors = [];
+            req.flash(function(msgs) {
+                _.forEach(msgs, function(v, k) {
+                    errors.push({key: k, value: v});
+                });
+                app.locals({
+                    flash: JSON.stringify(errors)
+                });
+                return next();
+            });
+        });
+    } else {
+        var errors = [];
+        req.flash(function(msgs) {
+            _.forEach(msgs, function(v, k) {
+                errors.push({key: k, value: v});
+            });
+            app.locals({
+                flash: JSON.stringify(errors)
+            });
+            return next();
+        });
+    }
+});
 ```
 
 With the `flash` middleware in place, all requests will have a `req.flash()` function
@@ -74,9 +101,9 @@ app.get('/', function(req, res){
 Now, in your view, time to render them. Below example is in .ejs but good enough to understand :-)
 
 ```javascript
-<% flash(function(msgs) {
-    console.log(msgs);  // Your message here. Do anything with it.
-}) %>
+<script type="text/javascript">
+window._messages = window._messages || <%- flash %>
+alert(window._messages); // Alerts json serialized string.
 ```
 
 ## Credits
